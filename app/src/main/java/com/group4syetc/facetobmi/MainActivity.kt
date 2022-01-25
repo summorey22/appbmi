@@ -74,6 +74,10 @@ class MainActivity : AppCompatActivity() {
         button1.setOnClickListener {
             val model = Model1.newInstance(this)
 
+            val drawable = imageView!!.drawable as BitmapDrawable
+            val bhai: Bitmap = drawable.bitmap
+            bm = Bitmap.createScaledBitmap(bhai,128,128,false)
+
 // Creates inputs for reference.
             val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 128, 128, 3), DataType.FLOAT32)
             val btbff = convertBitmapToByteBuffer(bm!!)
@@ -151,10 +155,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_CODE){
             imageView?.setImageURI(data?.data)
-            val drawable = imageView!!.drawable as BitmapDrawable
-            val bhai: Bitmap = drawable.bitmap
             button1.isVisible = true
-            bm = Bitmap.createScaledBitmap(bhai,128,128,false)
         }
     }
 
