@@ -12,6 +12,7 @@ import android.widget.Toast
 import com.group4syetc.facetobmi.databinding.ActivityMainBinding
 import android.graphics.drawable.BitmapDrawable
 import android.media.Image
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import androidx.core.view.isVisible
@@ -63,8 +64,12 @@ class MainActivity : AppCompatActivity() {
 
 // Creates inputs for reference.
             val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 128, 128, 3), DataType.FLOAT32)
-            val btbff = convertBitmapToByteBuffer(bm)
-            inputFeature0.loadBuffer(btbff!!)
+            try {
+                //val btbff = convertBitmapToByteBuffer(bm)
+                //inputFeature0.loadBuffer(btbff!!)
+            }catch (e: Exception){
+                Log.d("hmm", "bhendi")
+            }
 
 // Runs model inference and gets result.
             val outputs = model.process(inputFeature0)
@@ -75,37 +80,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer? {
-        val  BATCH_SIZE = 1
-        val PIXEL_SIZE = 3
-        val inputSize = 128
 
-        val byteBuffer: ByteBuffer
-        byteBuffer = ByteBuffer.allocateDirect(
-            1 * BATCH_SIZE * inputSize * inputSize * PIXEL_SIZE
-        )
-        byteBuffer.order(ByteOrder.nativeOrder())
-        val intValues = IntArray(inputSize * inputSize)
-        bitmap.getPixels(
-            intValues, 0, bitmap.width, 0, 0,
-            bitmap.width, bitmap.height
-        )
-        var pixel = 0
-        for (i in 0 until inputSize) {
-            for (j in 0 until inputSize) {
-                val `val` = intValues[pixel++]
-                byteBuffer.putFloat(
-                    (((`val` shr 16 and 0xFF) - 1.0) / 1.0).toFloat()
-                )
-                byteBuffer.putFloat(
-                    (((`val` shr 8 and 0xFF) - 1.0) / 1.0).toFloat()
-                )
-                byteBuffer.putFloat((((`val` and 0xFF) - 1.0) / 1.0).toFloat())
-            }
-        }
-
-        return byteBuffer
-    }
 
 
     private fun pickImageFromGallery() {
