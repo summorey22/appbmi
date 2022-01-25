@@ -2,6 +2,7 @@ package com.group4syetc.facetobmi
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -21,11 +22,13 @@ import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import android.os.SystemClock
+import android.widget.TextView
 
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var bm: Bitmap
+    private var bm: Bitmap? = null
     private lateinit var button: Button
     private lateinit var button1: Button
     private var imageView: ImageView? = null
@@ -37,6 +40,15 @@ class MainActivity : AppCompatActivity() {
         button = findViewById(R.id.button1)
         button1 = findViewById(R.id.button2)
         imageView = findViewById(R.id.ImageView1)
+
+        if (findViewById<TextView>(R.id.bruh).text == "null")
+        {
+            findViewById<TextView>(R.id.bruh).isVisible = false
+        }
+        if (imageView?.drawable ==null)
+        {
+            button1.isVisible = false
+        }
 
         button.setOnClickListener {
             //check runtime permission
@@ -64,23 +76,45 @@ class MainActivity : AppCompatActivity() {
 
 // Creates inputs for reference.
             val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 128, 128, 3), DataType.FLOAT32)
-            try {
-                //val btbff = convertBitmapToByteBuffer(bm)
-                //inputFeature0.loadBuffer(btbff!!)
-            }catch (e: Exception){
-                Log.d("hmm", "bhendi")
-            }
+            val btbff = convertBitmapToByteBuffer(bm!!)
+            inputFeature0.loadBuffer(btbff!!)
 
 // Runs model inference and gets result.
             val outputs = model.process(inputFeature0)
             val outputFeature0 = outputs.outputFeature0AsTensorBuffer
+            findViewById<TextView>(R.id.bruh).text = outputFeature0.toString()
 
 // Releases model resources if no longer used.
             model.close()
         }
     }
 
+    private fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer? {
+        val imgData: ByteBuffer? = null
 
+        imgData?.rewind()
+        val intValues = IntArray(1 * 128 * 128 * 3)
+        bitmap.getPixels(intValues, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+        val startTime = SystemClock.uptimeMillis()
+
+        // Convert the image to floating point.
+        var pixel = 0
+        for (i in 0 until bitmap.height) {
+            for (j in 0 until bitmap.width) {
+                val `val`: Int = intValues.get(pixel++)
+                imgData?.putFloat((`val` shr 16 and 0xFF) / 255f)
+                imgData?.putFloat((`val` shr 8 and 0xFF) / 255f)
+                imgData?.putFloat((`val` and 0xFF) / 255f)
+            }
+        }
+        val endTime = SystemClock.uptimeMillis()
+        Log.d(
+            TAG,
+            "Timecost to put values into ByteBuffer: " + java.lang.Long.toString(endTime - startTime)
+        )
+
+        return imgData
+    }
 
 
     private fun pickImageFromGallery() {
@@ -118,7 +152,9 @@ class MainActivity : AppCompatActivity() {
         if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_CODE){
             imageView?.setImageURI(data?.data)
             val drawable = imageView!!.drawable as BitmapDrawable
-            bm = drawable.bitmap
+            val bhai: Bitmap = drawable.bitmap
+            button1.isVisible = true
+            bm = Bitmap.createScaledBitmap(bhai,128,128,false)
         }
     }
 
