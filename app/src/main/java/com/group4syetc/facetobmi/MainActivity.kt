@@ -2,28 +2,23 @@ package com.group4syetc.facetobmi
 
 import android.Manifest
 import android.app.Activity
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.widget.Toast
-import com.group4syetc.facetobmi.databinding.ActivityMainBinding
 import android.graphics.drawable.BitmapDrawable
-import android.media.Image
+import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import com.group4syetc.facetobmi.ml.Model1
+import com.group4syetc.facetobmi.ml.Model
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import android.os.SystemClock
-import android.widget.TextView
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,12 +36,11 @@ class MainActivity : AppCompatActivity() {
         button1 = findViewById(R.id.button2)
         imageView = findViewById(R.id.ImageView1)
 
-        if (findViewById<TextView>(R.id.bruh).text == "null")
-        {
+        if (findViewById<TextView>(R.id.bruh).text == "null") {
             findViewById<TextView>(R.id.bruh).isVisible = false
         }
-        if (imageView?.drawable ==null)
-        {
+
+        if (imageView?.drawable ==null) {
             button1.isVisible = false
         }
 
@@ -72,48 +66,35 @@ class MainActivity : AppCompatActivity() {
         }
 
         button1.setOnClickListener {
-            val model = Model1.newInstance(this)
+            val model = Model.newInstance(this)
+            val drawable = imageView?.drawable as BitmapDrawable
+            val bhai = drawable.bitmap
+            bm = Bitmap.createScaledBitmap(bhai,128,128,false)
 
-// Creates inputs for reference.
+            // Creates inputs for reference.
             val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 128, 128, 3), DataType.FLOAT32)
             val btbff = convertBitmapToByteBuffer(bm!!)
+            Log.d("bruhhhh", "bm: $btbff")
             inputFeature0.loadBuffer(btbff!!)
 
-// Runs model inference and gets result.
+            // Runs model inference and gets result.
             val outputs = model.process(inputFeature0)
             val outputFeature0 = outputs.outputFeature0AsTensorBuffer
+            Log.d("bruhhhhh", "op: ${outputFeature0.floatArray.toString()}")
             findViewById<TextView>(R.id.bruh).text = outputFeature0.toString()
-
-// Releases model resources if no longer used.
+//            val op_bm = getOutputImage(outputFeature0.buffer)
+//            imageView!!.setImageBitmap(op_bm)
+            // Releases model resources if no longer used.
             model.close()
         }
     }
 
     private fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer? {
-        val imgData: ByteBuffer? = null
+        val byteBuffer = ByteBuffer.allocate(4*128*128*3)
+        byteBuffer.rewind()
+        bitmap.copyPixelsToBuffer(byteBuffer)
 
-        imgData?.rewind()
-        val intValues = IntArray(1 * 128 * 128 * 3)
-        bitmap.getPixels(intValues, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-        val startTime = SystemClock.uptimeMillis()
-
-        // Convert the image to floating point.
-        var pixel = 0
-        for (i in 0 until bitmap.height) {
-            for (j in 0 until bitmap.width) {
-                val `val`: Int = intValues.get(pixel++)
-                imgData?.putFloat((`val` shr 16 and 0xFF) / 255f)
-                imgData?.putFloat((`val` shr 8 and 0xFF) / 255f)
-                imgData?.putFloat((`val` and 0xFF) / 255f)
-            }
-        }
-        val endTime = SystemClock.uptimeMillis()
-        Log.d(
-            TAG,
-            "Timecost to put values into ByteBuffer: " + java.lang.Long.toString(endTime - startTime)
-        )
-
-        return imgData
+        return byteBuffer
     }
 
 
@@ -129,8 +110,8 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode){
             PERMISSION_CODE -> {
-                if (grantResults.size >0 && grantResults[0] ==
-                    PackageManager.PERMISSION_GRANTED){
+                if (grantResults.isNotEmpty() && grantResults[0] ==
+                    PackageManager.PERMISSION_GRANTED) {
                     //permission from popup granted
                     pickImageFromGallery()
                 }
@@ -145,6 +126,24 @@ class MainActivity : AppCompatActivity() {
     private fun convertImageViewToBitmap(v: ImageView): Bitmap? {
         return (v.drawable as BitmapDrawable).bitmap
     }
+
+//    private fun getOutputImage(output: ByteBuffer): Bitmap {
+//        output.rewind() // Rewind the output buffer after running.
+//        val outputHeight = 256
+//        val outputWidth = 256
+//        val bitmap = Bitmap.createBitmap(outputWidth, outputHeight, Bitmap.Config.ARGB_8888)
+//        val pixels = IntArray(outputWidth * outputHeight) // Set your expected output's height and width
+//        for (i in 0 until outputWidth * outputHeight) {
+//            val a = 0xFF
+//            val r: Float = output.float * 255.0f
+//            val g: Float = output.float * 255.0f
+//            val b: Float = output.float * 255.0f
+//            pixels[i] = a shl 24 or (r.toInt() shl 16) or (g.toInt() shl 8) or b.toInt()
+//        }
+//        bitmap.setPixels(pixels, 0, outputWidth, 0, 0, outputWidth, outputHeight)
+//
+//        return bitmap
+//    }
 
     //handle result of picked image
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
