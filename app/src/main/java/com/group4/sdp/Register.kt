@@ -5,9 +5,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.cardview.widget.CardView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -22,9 +25,15 @@ class Register : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
         databaseReference = database?.reference!!.child("profile")
+
+        findViewById<ImageButton>(R.id.back).setOnClickListener {
+            this.finish()
+        }
 
 
         findViewById<TextView>(R.id.regsignin).setOnClickListener(){
@@ -45,7 +54,7 @@ class Register : AppCompatActivity() {
         val text3: EditText = findViewById(R.id.middlenm)
         val text4: EditText = findViewById(R.id.reglasnm)
 
-        findViewById<CardView>(R.id.submitregcard).setOnClickListener() { view ->
+        findViewById<FloatingActionButton>(R.id.submitregcard).setOnClickListener() { view ->
             when {
                 TextUtils.isEmpty(emailya.text.toString().trim { it <= ' ' }) -> {
                     Toast.makeText(this, "Please enter email", Toast.LENGTH_SHORT).show()
