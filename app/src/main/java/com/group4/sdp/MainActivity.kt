@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
-        window.statusBarColor =  ContextCompat.getColor(this, R.color.teal_200)
+        window.statusBarColor =  ContextCompat.getColor(this, R.color.bluw)
 
         val sharedPreferences: SharedPreferences = this.getSharedPreferences("USER_DATA", Context.MODE_PRIVATE)
         val sharedNameValue = sharedPreferences.getString("user_name","Not Found")
