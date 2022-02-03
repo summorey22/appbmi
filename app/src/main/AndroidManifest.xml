@@ -3,6 +3,7 @@
     package="com.group4.sdp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
@@ -14,7 +15,8 @@
         android:theme="@style/Theme.SDP">
         <activity
             android:name=".CheckBmi"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.SDP.popup"/>
         <activity
             android:name=".Register"
             android:exported="false" />

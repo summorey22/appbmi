@@ -18,7 +18,7 @@ class SplashScreen : AppCompatActivity() {
         setContentView(R.layout.activity_splash_screen)
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        window.statusBarColor =  ContextCompat.getColor(this, R.color.emerald)
+        window.statusBarColor =  ContextCompat.getColor(this, R.color.teal_200)
 
         auth = FirebaseAuth.getInstance()
 

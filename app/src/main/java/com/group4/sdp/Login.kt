@@ -1,9 +1,13 @@
 package com.group4.sdp
 
+import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.cardview.widget.CardView
@@ -11,10 +15,19 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class Login : AppCompatActivity() {
 
     lateinit var auth: FirebaseAuth
+    var databaseReference : DatabaseReference? = null
+    var database: FirebaseDatabase? = null
+    lateinit var sharedPreferences: SharedPreferences
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,6 +35,7 @@ class Login : AppCompatActivity() {
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         window.statusBarColor =  ContextCompat.getColor(this, R.color.pink)
+
 
         findViewById<ImageButton>(R.id.back1).setOnClickListener {
             this.finish()
@@ -81,8 +95,23 @@ class Login : AppCompatActivity() {
                             prgbr.isVisible=false
 
                             if(it.isSuccessful){
-
                                 val intent = Intent(this,MainActivity::class.java)
+                                val currentUser = auth.currentUser
+                                val db = Firebase.firestore
+                                db.collection("profile").document(currentUser?.uid.toString()).get()
+                                    .addOnCompleteListener { task ->
+                                        if (task.isSuccessful)
+                                        {
+                                            val document = task.result
+                                            val buff = document?.data?.get("fname")
+                                            sharedPreferences = this.getSharedPreferences("USER_DATA", Context.MODE_PRIVATE)
+                                            val editor: SharedPreferences.Editor =  sharedPreferences.edit()
+                                            editor.putString("user_name",buff.toString())
+                                            editor.apply()
+                                            editor.commit()
+
+                                        }
+                                    }
                                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                 startActivity(intent)
                                 finish()

@@ -15,6 +15,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class Register : AppCompatActivity() {
 
@@ -24,8 +26,6 @@ class Register : AppCompatActivity() {
 
     lateinit var auth: FirebaseAuth
     lateinit var prgBr: ProgressBar
-    var databaseReference : DatabaseReference? = null
-    var database: FirebaseDatabase? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +42,8 @@ class Register : AppCompatActivity() {
         sharedPreferences = this.getSharedPreferences(userData, Context.MODE_PRIVATE)
 
         auth = FirebaseAuth.getInstance()
+
+        val db = Firebase.firestore
 
         findViewById<ImageButton>(R.id.back).setOnClickListener {
             this.finish()
@@ -96,8 +98,12 @@ class Register : AppCompatActivity() {
 
                             if(it.isSuccessful){
 
-                                val currentUser = auth.currentUser
-                                val currentUserDb = databaseReference?.child((currentUser?.uid!!))
+                                val db = Firebase.firestore
+                                val user = hashMapOf(
+                                    "fname" to fname.text.toString(),
+                                    "lname" to text4.text.toString(),
+                                )
+                                db.collection("profile").document(auth.currentUser?.uid.toString()).set(user)
                                 val editor:SharedPreferences.Editor =  sharedPreferences.edit()
                                 editor.putString("user_name",fname.text.toString())
                                 editor.putString("last_name", text4.text.toString())

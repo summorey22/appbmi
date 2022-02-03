@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/diff_back4"
+    android:background="@drawable/diff_back6"
     tools:context=".SplashScreen">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="150dp"
-            android:text="APP NAME"
+            android:text="FACETELLS"
             android:textColor="@color/white"
             android:textSize="50sp"
             app:layout_constraintBottom_toBottomOf="parent"
